@@ -70,8 +70,8 @@ public class GitlabRepositorySettings private constructor(
    */
   public data class Builder @JvmOverloads constructor(
     val project: Project,
-    var projectId: Int? = project.providers.environmentVariable("GITLAB_PROJECT_ID").forUseAtConfigurationTime().orNull?.toIntOrNull()
-      ?: project.providers.environmentVariable("CI_PROJECT_ID").forUseAtConfigurationTime().orNull?.toIntOrNull(),
+    var projectId: Int? = project.providers.environmentVariable("GITLAB_PROJECT_ID").orNull?.toIntOrNull()
+      ?: project.providers.environmentVariable("CI_PROJECT_ID").orNull?.toIntOrNull(),
     var gitlabUrl: String = project.providers.environmentVariable("GITLAB_URL").orNull
       ?: project.providers.environmentVariable("CI_SERVER_HOST").orNull?.let { "https://$it" }
       ?: DEFAULT_GITLAB_URL,

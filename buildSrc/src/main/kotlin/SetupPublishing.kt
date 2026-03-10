@@ -30,8 +30,8 @@ public fun Project.setupBuildDirPublishing() {
 
 public fun Project.setupAwsPublishing() {
   addPublishingRepositories {
-    val repository = project.providers.environmentVariable("AWS_ACCESS_KEY_ID").forUseAtConfigurationTime().orNull?.let { awsAccessKeyId ->
-      project.providers.environmentVariable("AWS_SECRET_ACCESS_KEY").forUseAtConfigurationTime().orNull?.let { awsSecretAccessKey ->
+    val repository = project.providers.environmentVariable("AWS_ACCESS_KEY_ID").orNull?.let { awsAccessKeyId ->
+      project.providers.environmentVariable("AWS_SECRET_ACCESS_KEY").orNull?.let { awsSecretAccessKey ->
         maven {
           it.url = project.uri("s3://gradle-josm-plugin")
           it.name = "s3"
@@ -52,8 +52,8 @@ public fun Project.setupAwsPublishing() {
 
 public fun Project.setupOssSonatypeStagingPublishing() {
   addPublishingRepositories {
-    providers.environmentVariable("SONATYPE_USERNAME").forUseAtConfigurationTime().orNull?.let { sonatypeUsername ->
-      providers.environmentVariable("SONATYPE_PASSWORD").forUseAtConfigurationTime().orNull?.let { sonatypePassword ->
+    providers.environmentVariable("SONATYPE_USERNAME").orNull?.let { sonatypeUsername ->
+      providers.environmentVariable("SONATYPE_PASSWORD").orNull?.let { sonatypePassword ->
         maven {
           it.name = "OssSonatypeStaging"
           it.url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
@@ -87,7 +87,7 @@ private fun Project.addPublishingRepositories(conf: (RepositoryHandler).() -> Un
  */
 public fun Project.setupMavenArtifactSigning() {
   plugins.withType(MavenPublishPlugin::class).whenPluginAdded {
-    providers.environmentVariable("SIGNING_PGP_PRIVATE_KEY_PATH").forUseAtConfigurationTime().orNull
+    providers.environmentVariable("SIGNING_PGP_PRIVATE_KEY_PATH").orNull
       ?.let { File(it) }
       ?.takeIf { it.canRead() }
       ?.readText()
@@ -96,7 +96,7 @@ public fun Project.setupMavenArtifactSigning() {
         extensions.findByType<SigningExtension>()!!.let { signingExtension -> // see above: Signing plugin is applied
           signingExtension.useInMemoryPgpKeys(
             privateKey,
-            providers.environmentVariable("SIGNING_PGP_PASSWORD").forUseAtConfigurationTime().getOrElse("")
+            providers.environmentVariable("SIGNING_PGP_PASSWORD").getOrElse("")
           )
           extensions.findByType<PublishingExtension>()!!.let { publishingExtension -> // see above: publishing plugin is applied
             publishingExtension.publications.withType<MavenPublication>().all { signingExtension.sign(it) }
